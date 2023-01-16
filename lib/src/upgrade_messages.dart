@@ -769,6 +769,8 @@ class UpgraderMessages {
       case 'uk':
       case 'vi':
       case 'zh':
+        message = '版本更新';
+        break;
       case 'en':
       default:
         message = 'Release Notes';

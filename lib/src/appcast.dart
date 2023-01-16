@@ -65,7 +65,8 @@ class Appcast {
   }
 
   /// Download the Appcast from [appCastURL].
-  Future<List<AppcastItem>?> parseAppcastItemsFromUri(String appCastURL) async {
+  Future<List<AppcastItem>?> parseAppcastItemsFromUri(String appCastURL,
+      {String? country}) async {
     http.Response response;
     try {
       response = await client!.get(Uri.parse(appCastURL));
@@ -74,16 +75,18 @@ class Appcast {
       return null;
     }
     final contents = utf8.decode(response.bodyBytes);
-    return parseAppcastItems(contents);
+    return parseAppcastItems(contents, country: country);
   }
 
   /// Parse the Appcast from XML string.
-  Future<List<AppcastItem>?> parseAppcastItems(String contents) async {
+  Future<List<AppcastItem>?> parseAppcastItems(String contents,
+      {String? country}) async {
     await _getDeviceInfo();
-    return parseItemsFromXMLString(contents);
+    return parseItemsFromXMLString(contents, country: country);
   }
 
-  List<AppcastItem>? parseItemsFromXMLString(String xmlString) {
+  List<AppcastItem>? parseItemsFromXMLString(String xmlString,
+      {String? country}) {
     items = null;
 
     if (xmlString.isEmpty) {
@@ -120,7 +123,15 @@ class Appcast {
             if (name == AppcastConstants.ElementTitle) {
               title = childNode.text;
             } else if (name == AppcastConstants.ElementDescription) {
-              itemDescription = childNode.text;
+              if (childNode.attributes.length > 0) {
+                var attr = childNode.attributes
+                    .firstWhere((attr) => attr.name.qualified == 'xml:lang');
+                if (attr != null && country! == attr.value.toUpperCase()) {
+                  itemDescription = childNode.text;
+                }
+              } else {
+                itemDescription = childNode.text;
+              }
             } else if (name == AppcastConstants.ElementEnclosure) {
               childNode.attributes.forEach((XmlAttribute attribute) {
                 if (attribute.name.toString() ==
