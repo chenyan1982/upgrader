@@ -272,12 +272,6 @@ class Upgrader {
         print('upgrader: countryCode: $country');
       }
 
-      // The  language code of the locale, defaulting to `en`.
-      final language = languageCode ?? findLanguageCode();
-      if (debugLogging) {
-        print('upgrader: languageCode: $language');
-      }
-
       final appcast = this.appcast ?? Appcast(client: client);
       await appcast.parseAppcastItemsFromUri(appcastConfig!.url!,
           country: country);
@@ -303,6 +297,18 @@ class Upgrader {
     } else {
       if (_packageInfo == null || _packageInfo!.packageName.isEmpty) {
         return false;
+      }
+
+      // The  country code of the locale, defaulting to `US`.
+      final country = countryCode ?? findCountryCode();
+      if (debugLogging) {
+        print('upgrader: countryCode: $country');
+      }
+
+      // The  language code of the locale, defaulting to `en`.
+      final language = languageCode ?? findLanguageCode();
+      if (debugLogging) {
+        print('upgrader: languageCode: $language');
       }
 
       // Get Android version from Google Play Store, or
